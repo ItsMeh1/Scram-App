@@ -1,64 +1,72 @@
 "use strict";
-/**
- * @type {HTMLFormElement}
- */
-const form = document.getElementById("sj-form");
-/**
- * @type {HTMLInputElement}
- */
-const address = document.getElementById("sj-address");
-/**
- * @type {HTMLInputElement}
- */
-const searchEngine = document.getElementById("sj-search-engine");
-/**
- * @type {HTMLParagraphElement}
- */
-const error = document.getElementById("sj-error");
-/**
- * @type {HTMLPreElement}
- */
-const errorCode = document.getElementById("sj-error-code");
 
-const { ScramjetController } = $scramjetLoadController();
+// Wait until Scramjet loader is ready
+window.addEventListener("load", async () => {
+    try {
+        // Load Scramjet internals
+        const { ScramjetController } = await $scramjetLoadController();
 
-const scramjet = new ScramjetController({
-	files: {
-		wasm: "/scram/scramjet.wasm.wasm",
-		all: "/scram/scramjet.all.js",
-		sync: "/scram/scramjet.sync.js",
-	},
-});
+        const scramjet = new ScramjetController({
+            files: {
+                wasm: "/scram/scramjet.wasm.wasm",
+                all: "/scram/scramjet.all.js",
+                sync: "/scram/scramjet.sync.js",
+            },
+        });
 
-scramjet.init();
+        await scramjet.init();
 
-const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+        const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
-form.addEventListener("submit", async (event) => {
-	event.preventDefault();
+        const urlInput = document.getElementById("urlInput");
 
-	try {
-		await registerSW();
-	} catch (err) {
-		error.textContent = "Failed to register service worker.";
-		errorCode.textContent = err.toString();
-		throw err;
-	}
+        async function startScramjet(rawInput) {
+            if (!rawInput) return;
 
-	const url = search(address.value, searchEngine.value);
+            // Add https:// if missing
+            let url = rawInput.trim();
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "https://" + url;
+            }
 
-	let wispUrl =
-		(location.protocol === "https:" ? "wss" : "ws") +
-		"://" +
-		location.host +
-		"/wisp/";
-	if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-		await connection.setTransport("/libcurl/index.mjs", [
-			{ websocket: wispUrl },
-		]);
-	}
-	const frame = scramjet.createFrame();
-	frame.frame.id = "sj-frame";
-	document.body.appendChild(frame.frame);
-	frame.go(url);
+            try {
+                await registerSW();
+            } catch (err) {
+                console.error("Service Worker failed:", err);
+                return;
+            }
+
+            let wispUrl =
+                (location.protocol === "https:" ? "wss" : "ws") +
+                "://" +
+                location.host +
+                "/wisp/";
+
+            if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+                await connection.setTransport("/libcurl/index.mjs", [
+                    { websocket: wispUrl },
+                ]);
+            }
+
+            // Remove old frame if it exists
+            const oldFrame = document.getElementById("sj-frame");
+            if (oldFrame) oldFrame.remove();
+
+            const frame = scramjet.createFrame();
+            frame.frame.id = "sj-frame";
+            document.body.appendChild(frame.frame);
+
+            frame.go(url);
+        }
+
+        // Handle Enter key
+        urlInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                startScramjet(urlInput.value);
+            }
+        });
+
+    } catch (err) {
+        console.error("Scramjet init failed:", err);
+    }
 });
