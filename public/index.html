@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <script src="/scram/scramjet.all.js"></script>
+
+    <script>
+        (async () => {
+            await $scramjetLoadWorker();
+            await $scramjetLoadController();
+        })();
+    </script>
+
     <script src="/baremux/index.js"></script>
-	<script src="index.js"></script>
-	<script>
-			(async () => {
-   				await $scramjetLoadWorker();
-    			await $scramjetLoadController();
-			})();
-	</script>
+    <script src="index.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash Browser</title>
