@@ -1,23 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-(async () => {
-    try {
-        console.log("Loading worker...");
-        await $scramjetLoadWorker();
-        console.log("Worker loaded");
-
-        await $scramjetLoadController();
-        console.log("Controller loaded");
-    } catch (e) {
-        console.error("Scramjet init error:", e);
-    }
-})();
-</script>
-
-    <script src="/baremux/index.js"></script>
-    <script src="index.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash Browser</title>
@@ -819,5 +802,24 @@
             if(f.src) f.src = f.src; 
         }
     </script>
+	<script src="/scram/scramjet.all.js"></script>
+    <script src="/baremux/index.js"></script>
+
+    <script>
+        window.addEventListener("load", async () => {
+            try {
+                console.log("Loading worker...");
+                await $scramjetLoadWorker();
+                console.log("Worker loaded");
+
+                await $scramjetLoadController();
+                console.log("Controller loaded");
+            } catch (e) {
+                console.error("Scramjet init error:", e);
+            }
+        });
+    </script>
+
+    <script src="index.js"></script>
 </body>
 </html>
