@@ -4,102 +4,289 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash | Games</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind has been completely removed -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-card: #16161a;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b; /* slate-500 */
+            --text-dark: #475569;  /* slate-600 */
+            --border-light: rgba(255, 255, 255, 0.05);
+            --purple-400: #c084fc;
+            --purple-500: #a855f7;
+            --purple-hover: rgba(168, 85, 247, 0.3);
+            --yellow-400: #facc15;
+        }
+
+        /* --- RESET & BASE --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1280px; /* max-w-7xl */
+            margin: 0 auto;
+            padding: 48px 24px; /* py-12 px-6 */
+        }
+
+        /* --- HEADER & TYPOGRAPHY --- */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px; /* gap-2 */
+            color: var(--text-muted);
+            margin-bottom: 48px; /* mb-12 */
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: white; }
+        .back-link .lucide { width: 20px; height: 20px; }
+
+        .page-title {
+            font-size: 3rem; /* text-5xl */
+            font-weight: 900; /* font-black */
+            font-style: italic;
+            letter-spacing: -0.05em; /* tracking-tighter */
+            color: white;
+            margin-bottom: 48px; /* mb-12 */
+        }
+
+        @media (min-width: 768px) {
+            .page-title { font-size: 3.75rem; /* text-6xl */ }
+        }
+
+        .title-plus { color: var(--purple-500); }
+        .title-bolt { color: var(--yellow-400); }
+
+        /* --- GRID --- */
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px; /* gap-6 */
+        }
+
+        @media (min-width: 640px) {
+            .games-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .games-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* --- GAME CARD COMPONENT --- */
+        .game-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 24px; /* rounded-3xl */
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            border-color: var(--purple-hover);
+            transform: translateY(-8px); /* hover:-translate-y-2 */
+        }
+
+        .card-link {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+
+        .card-image-wrap {
+            aspect-ratio: 16 / 9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover .card-image { opacity: 1; }
+
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover .play-overlay { opacity: 1; }
+
+        .play-btn {
+            width: 48px;
+            height: 48px;
+            background-color: var(--purple-500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .play-btn .lucide { fill: currentColor; width: 20px; height: 20px; }
+
+        .card-content {
+            padding: 24px; /* p-6 */
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700;
+            margin-bottom: 4px;
+            transition: color 0.3s ease;
+        }
+
+        .game-card:hover .card-title { color: var(--purple-400); }
+
+        .card-desc {
+            font-size: 0.75rem; /* text-xs */
+            color: var(--text-muted);
+            margin-bottom: 16px; /* mb-4 */
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: var(--text-dark);
+            border-top: 1px solid var(--border-light);
+            padding-top: 16px; /* pt-4 */
+            margin-top: auto; /* pushes meta to bottom if descriptions vary in height */
+        }
+
+        .meta-active { color: var(--purple-400); }
+
+        /* Utility */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-[#0a0a0c] text-slate-200">
-    <div class="relative max-w-7xl mx-auto px-6 py-12">
-        <a href="index.html" class="flex items-center gap-2 text-slate-500 hover:text-white mb-12 group">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+<body>
+    <div class="container">
+        
+        <a href="index.html" class="back-link">
+            <i data-lucide="arrow-left"></i>
             <span>Back to Hub</span>
         </a>
 
-        <h1 class="text-5xl md:text-6xl font-black italic tracking-tighter text-white mb-12">
-            GAMES<span class="text-purple-500">+</span><span class="text-yellow-400">⚡</span>
+        <h1 class="page-title">
+            GAMES<span class="title-plus">+</span><span class="title-bolt">⚡</span>
         </h1>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Game Card -->
-            <div class="group bg-[#16161a] border border-white/5 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all hover:-translate-y-2">
-                <div class="aspect-video relative">
-                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"><i data-lucide="play" class="text-white fill-current"></i></div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-1 group-hover:text-purple-400">Slope</h3>
-                    <p class="text-xs text-slate-500 mb-4">Speed down neon slopes.</p>
-                    <div class="flex justify-between items-center text-[10px] uppercase font-mono text-slate-600 border-t border-white/5 pt-4">
-                        <span>Action</span>
-                        <span class="text-purple-400">2.4k Active</span>
-                    </div>
-                </div>
-                <a href="helpers/error.html" class="absolute inset-0"></a>
-            </div>
-            <!-- Repeat cards as needed -->
-
-            <div class="group bg-[#16161a] border border-white/5 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all hover:-translate-y-2">
-                <div class="aspect-video relative">
-                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"><i data-lucide="play" class="text-white fill-current"></i></div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-1 group-hover:text-purple-400">Shadow Client 1.8.0 Eaglercraft</h3>
-                    <p class="text-xs text-slate-500 mb-4">Advanced minecraft PVP client, amazing performance.</p>
-                    <div class="flex justify-between items-center text-[10px] uppercase font-mono text-slate-600 border-t border-white/5 pt-4">
-                        <span>Minecraft, PVP, Action</span>
-                        <span class="text-purple-400">~100 Active</span>
-                    </div>
-                </div>
-                <a href="games/sc.html" class="absolute inset-0"></a>
-            </div>
-
-            <div class="group bg-[#16161a] border border-white/5 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all hover:-translate-y-2">
-                <div class="aspect-video relative">
-                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"><i data-lucide="play" class="text-white fill-current"></i></div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-1 group-hover:text-purple-400">Astra Client</h3>
-                    <p class="text-xs text-slate-500 mb-4">Beautiful, simple, and fast Eagler client.</p>
-                    <div class="flex justify-between items-center text-[10px] uppercase font-mono text-slate-600 border-t border-white/5 pt-4">
-                        <span>Action</span>
-                        <span class="text-purple-400">~400 Active</span>
-                    </div>
-                </div>
-                <a href="games/ac.html" class="absolute inset-0"></a>
-            </div>
-
-            <div class="group bg-[#16161a] border border-white/5 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all hover:-translate-y-2">
-                <div class="aspect-video relative">
-                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"><i data-lucide="play" class="text-white fill-current"></i></div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-1 group-hover:text-purple-400">Eagler Official Website</h3>
-                    <p class="text-xs text-slate-500 mb-4">Launch all versions of Eagler, from 1.8 to 1.20!</p>
-                    <div class="flex justify-between items-center text-[10px] uppercase font-mono text-slate-600 border-t border-white/5 pt-4">
-                        <span>Eagler, PVP, Building, Minecraft, Launcher</span>
-                        <span class="text-purple-400">~10k Active</span>
-                    </div>
-                </div>
-                <a href="games/eagler.html" class="absolute inset-0"></a>
-            </div>
-
+        <div class="games-grid">
             
+            <!-- Game Card: Slope -->
+            <div class="game-card">
+                <div class="card-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="card-image" alt="Slope">
+                    <div class="play-overlay">
+                        <div class="play-btn"><i data-lucide="play"></i></div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Slope</h3>
+                    <p class="card-desc">Speed down neon slopes.</p>
+                    <div class="card-meta">
+                        <span>Action</span>
+                        <span class="meta-active">2.4k Active</span>
+                    </div>
+                </div>
+                <a href="helpers/error.html" class="card-link"></a>
+            </div>
+
+            <!-- Game Card: Shadow Client -->
+            <div class="game-card">
+                <div class="card-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="card-image" alt="Shadow Client">
+                    <div class="play-overlay">
+                        <div class="play-btn"><i data-lucide="play"></i></div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Shadow Client 1.8.0 Eaglercraft</h3>
+                    <p class="card-desc">Advanced minecraft PVP client, amazing performance.</p>
+                    <div class="card-meta">
+                        <span>Minecraft, PVP, Action</span>
+                        <span class="meta-active">~100 Active</span>
+                    </div>
+                </div>
+                <a href="games/sc.html" class="card-link"></a>
+            </div>
+
+            <!-- Game Card: Astra Client -->
+            <div class="game-card">
+                <div class="card-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="card-image" alt="Astra Client">
+                    <div class="play-overlay">
+                        <div class="play-btn"><i data-lucide="play"></i></div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Astra Client</h3>
+                    <p class="card-desc">Beautiful, simple, and fast Eagler client.</p>
+                    <div class="card-meta">
+                        <span>Action</span>
+                        <span class="meta-active">~400 Active</span>
+                    </div>
+                </div>
+                <a href="games/ac.html" class="card-link"></a>
+            </div>
+
+            <!-- Game Card: Eagler Official -->
+            <div class="game-card">
+                <div class="card-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1614850523296-e8c041de4398?auto=format&fit=crop&w=300" class="card-image" alt="Eagler Official">
+                    <div class="play-overlay">
+                        <div class="play-btn"><i data-lucide="play"></i></div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Eagler Official Website</h3>
+                    <p class="card-desc">Launch all versions of Eagler, from 1.8 to 1.20!</p>
+                    <div class="card-meta">
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%;">Eagler, PVP, Building, Minecraft, Launcher</span>
+                        <span class="meta-active">~10k Active</span>
+                    </div>
+                </div>
+                <a href="games/eagler.html" class="card-link"></a>
+            </div>
+
         </div>
     </div>
+
     <script>lucide.createIcons();</script>
 </body>
 </html>
