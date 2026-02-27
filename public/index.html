@@ -756,9 +756,9 @@
             let proxyUrl;
 
             // Proxy encoding logic preserved exactly from your original snippet
-            if (currentEngine === "scramjet") {
-    			proxyUrl = config.prefix + encodeURIComponent(url);
-			} else {
+           if (currentEngine === "scramjet") {
+    proxyUrl = config.prefix + $scramjetEncodeUrl(url);
+} else {
     			const encoded = btoa(url).replace(/\//g, '_').replace(/\+/g, '-');
     			proxyUrl = `${ENGINES.ultraviolet.url}${ENGINES.ultraviolet.prefix}${encoded}`;
 			}
