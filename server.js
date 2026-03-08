@@ -16,6 +16,7 @@ const bare = createBareServer("/baremux/");
 const wisp = createWispServer();
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/scram/", express.static(path.join(__dirname, "scram")));
 
 app.use("/baremux/", (req, res) => {
     if (bare.shouldRoute(req)) {
