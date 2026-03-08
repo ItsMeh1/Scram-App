@@ -1,5 +1,19 @@
 "use strict";
 
+async function registerSW() {
+    if (!("serviceWorker" in navigator)) {
+        throw new Error("Service workers are not supported");
+    }
+
+    const registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+    });
+
+    await navigator.serviceWorker.ready;
+
+    console.log("Service worker registered");
+}
+
 // Wait until Scramjet loader is ready
 window.addEventListener("load", async () => {
     try {
